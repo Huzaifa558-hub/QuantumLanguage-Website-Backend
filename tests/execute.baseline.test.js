@@ -1,5 +1,7 @@
 const request = require("supertest");
 const app = require("../src/app");
+const { cleanSandboxPath, stripAnsi } = require("../src/services/qrun.service");
+
 
 describe("GET /api/health", () => {
   it("returns ok status and reports environment", async () => {
@@ -8,6 +10,32 @@ describe("GET /api/health", () => {
     expect(res.body.status).toBe("ok");
     expect(res.body).toHaveProperty("qrunAvailable");
     expect(res.body).toHaveProperty("environment");
+  });
+});
+
+
+describe("cleanSandboxPath", () => {
+  it("replaces the sandbox temp filename with a neutral name", () => {
+    const input = "Error in sandbox_a1b2c3d4e5f6.sa at line 1: bad token";
+    const output = cleanSandboxPath(input);
+    expect(output).not.toMatch(/sandbox_/);
+    expect(output).toContain("script.sa");
+  });
+
+  it("leaves text without a sandbox path unchanged", () => {
+    const input = "RuntimeError: something failed";
+    expect(cleanSandboxPath(input)).toBe(input);
+  });
+
+  it("handles null safely", () => {
+    expect(cleanSandboxPath(null)).toBe(null);
+  });
+});
+
+describe("stripAnsi", () => {
+  it("removes ANSI color codes", () => {
+    const input = "\u001b[31m\u001b[1mRed bold\u001b[0m text";
+    expect(stripAnsi(input)).toBe("Red bold text");
   });
 });
 

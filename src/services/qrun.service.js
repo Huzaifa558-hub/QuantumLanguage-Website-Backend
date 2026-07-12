@@ -34,6 +34,14 @@ function stripAnsi(text) {
   return text ? text.replace(/\u001b\[[0-9;]*m/g, "").trim() : null;
 }
 
+// Remove the internal sandbox temp path from messages so users never see
+// server-side file paths. Replaces any sandbox_<hash><ext> filename with a
+// neutral "script<ext>".
+function cleanSandboxPath(text) {
+  if (!text) return text;
+  return text.replace(/sandbox_[a-f0-9]+(\.\w+)/gi, "script$1");
+}
+
 // Runs code through qrun. Resolves with the raw execFile result so the
 // controller can shape the response. Never rejects.
 function runCode(code, extension) {
@@ -64,4 +72,4 @@ function runCode(code, extension) {
   });
 }
 
-module.exports = { resolveQrunPath, runCode, stripAnsi };
+module.exports = { resolveQrunPath, runCode, stripAnsi, cleanSandboxPath };

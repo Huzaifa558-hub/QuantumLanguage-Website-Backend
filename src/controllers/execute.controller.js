@@ -1,5 +1,5 @@
 const config = require("../config");
-const { runCode, stripAnsi } = require("../services/qrun.service");
+const { runCode, stripAnsi, cleanSandboxPath } = require("../services/qrun.service");
 const { handleKnownSamples, buildKnownSampleFallback } = require("../services/samples.service");
 
 async function execute(req, res) {
@@ -68,8 +68,8 @@ async function execute(req, res) {
   const isSyntaxError = stdout.includes("[Syntax Error]") || stderr.includes("[Syntax Error]");
   const isTypeWarning = stdout.includes("[StaticTypeWarning]");
 
-  const cleanOutput = stripAnsi(stdout);
-  const cleanError = stripAnsi(stderr);
+  const cleanOutput = cleanSandboxPath(stripAnsi(stdout));
+  const cleanError = cleanSandboxPath(stripAnsi(stderr));
 
   const fallback = buildKnownSampleFallback(code, cleanOutput, cleanError);
   if (fallback) {
@@ -80,9 +80,9 @@ async function execute(req, res) {
     success: !execError && !isSyntaxError,
     hasWarnings: isTypeWarning,
     output: cleanOutput,
-    error: isSyntaxError && stdout ? stripAnsi(stdout) : cleanError,
+    error: isSyntaxError && stdout ? cleanSandboxPath(stripAnsi(stdout)) : cleanError,
     compiledOutput: cleanOutput,
-    compilerError: isSyntaxError && stdout ? stripAnsi(stdout) : cleanError,
+    compilerError: isSyntaxError && stdout ? cleanSandboxPath(stripAnsi(stdout)) : cleanError,
   });
 }
 
