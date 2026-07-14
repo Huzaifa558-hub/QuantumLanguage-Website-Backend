@@ -247,6 +247,33 @@ Here is what you can ask me about:
 
 *Type a message or select one of the quick prompts to get started!*
 
+*Running in local fallback mode. Define \\\`GROQ_API_KEY\\\` or \\\`GEMINI_API_KEY\\\` in your backend \\\`.env\\\` file to activate live AI responses.*`,
+
+    greeting: `### Hello!
+I am your Quantum Assistant. How can I help you today?
+
+You can ask me about:
+* **Architecture & Internals** (VM stack, lexer, parsing compiler, stub bundling)
+* **Language Syntax & Features** (variable styles, OOP inheritance, closures, pointers)
+* **Standard Library & Functions** (cryptography hashes, math helpers, file I/O)
+* **Build & CLI References** (compiling, running tests, launching the REPL)
+
+*Running in local fallback mode. Define \\\`GROQ_API_KEY\\\` or \\\`GEMINI_API_KEY\\\` in your backend \\\`.env\\\` file to activate live AI responses.*`,
+
+    creator: `### Creator & Author
+The Quantum Programming Language was designed and built from scratch by **Saad and the QuantumLogics team** using C++17. 
+It features a custom virtual machine, multi-syntax compatibility (Python/JS/C++ styles in a single file), and first-class pointers.
+
+*Running in local fallback mode. Define \\\`GROQ_API_KEY\\\` or \\\`GEMINI_API_KEY\\\` in your backend \\\`.env\\\` file to activate live AI responses.*`,
+
+    thanks: `### You're Welcome!
+Happy to help! Let me know if you want to explore code snippets, standard library functions, or compilation details.
+
+*Running in local fallback mode. Define \\\`GROQ_API_KEY\\\` or \\\`GEMINI_API_KEY\\\` in your backend \\\`.env\\\` file to activate live AI responses.*`,
+
+    farewell: `### Goodbye!
+Thanks for checking out Quantum! Happy hacking, and feel free to ask again whenever you need help with your \\\`.sa\\\` scripts.
+
 *Running in local fallback mode. Define \\\`GROQ_API_KEY\\\` or \\\`GEMINI_API_KEY\\\` in your backend \\\`.env\\\` file to activate live AI responses.*`
 };
 
@@ -369,19 +396,37 @@ async function handleChatRequest(req, res) {
         let reply = LOCAL_FALLBACK_RESPONSES.help;
         let matched = false;
 
-        if (text.includes('architecture') || text.includes('purpose') || text.includes('how it work') || text.includes('internals') || text.includes('compiler') || text.includes('vm') || text.includes('serializer') || text.includes('disassembler') || text.includes('overview')) {
+        // 1. Basic Greetings & General Queries
+        if (text.includes('hello') || text.includes('hi ') || text.trim() === 'hi' || text.includes('hey') || text.includes('greetings') || text.includes('hola')) {
+            reply = LOCAL_FALLBACK_RESPONSES.greeting;
+            matched = true;
+        } else if (text.includes('creator') || text.includes('author') || text.includes('who made') || text.includes('who created') || text.includes('developer') || text.includes('owner')) {
+            reply = LOCAL_FALLBACK_RESPONSES.creator;
+            matched = true;
+        } else if (text.includes('thank') || text.includes('thanks') || text.includes('appreciate')) {
+            reply = LOCAL_FALLBACK_RESPONSES.thanks;
+            matched = true;
+        } else if (text.includes('bye') || text.includes('goodbye') || text.includes('see ya') || text.includes('exit')) {
+            reply = LOCAL_FALLBACK_RESPONSES.farewell;
+            matched = true;
+        }
+        // 2. Technical VM / Architecture Queries
+        else if (text.includes('architecture') || text.includes('purpose') || text.includes('how it work') || text.includes('internals') || text.includes('compiler') || text.includes('vm') || text.includes('serializer') || text.includes('disassembler') || text.includes('overview')) {
             reply = LOCAL_FALLBACK_RESPONSES.architecture;
             matched = true;
         }
-        if (!matched && (text.includes('syntax') || text.includes('pointer') || text.includes('class') || text.includes('oop') || text.includes('closure') || text.includes('inheritance') || text.includes('exception') || text.includes('style') || text.includes('feature'))) {
+        // 3. Syntax / Language Features Queries
+        else if (text.includes('syntax') || text.includes('pointer') || text.includes('class') || text.includes('oop') || text.includes('closure') || text.includes('inheritance') || text.includes('exception') || text.includes('style') || text.includes('feature')) {
             reply = LOCAL_FALLBACK_RESPONSES.syntax;
             matched = true;
         }
-        if (!matched && (text.includes('standard library') || text.includes('stdlib') || text.includes('function') || text.includes('crypto') || text.includes('hash') || text.includes('encrypt') || text.includes('encoding') || text.includes('network') || text.includes('printf'))) {
+        // 4. Standard Library Queries
+        else if (text.includes('standard library') || text.includes('stdlib') || text.includes('function') || text.includes('crypto') || text.includes('hash') || text.includes('encrypt') || text.includes('encoding') || text.includes('network') || text.includes('printf')) {
             reply = LOCAL_FALLBACK_RESPONSES.stdlib;
             matched = true;
         }
-        if (!matched && (text.includes('build') || text.includes('cli') || text.includes('reference') || text.includes('compile') || text.includes('run') || text.includes('repl') || text.includes('test') || text.includes('binary') || text.includes('binaries'))) {
+        // 5. Build / Compilation / CLI commands
+        else if (text.includes('build') || text.includes('cli') || text.includes('reference') || text.includes('compile') || text.includes('run') || text.includes('repl') || text.includes('test') || text.includes('binary') || text.includes('binaries')) {
             reply = LOCAL_FALLBACK_RESPONSES.build;
             matched = true;
         }
